@@ -1,19 +1,25 @@
 import boto3
 import json
 import logging
-import os
 from custom_encoder import CustomEncoder
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
-_LAMBDA_DYNAMODB_RESOURCE = { "resource" : boto3.resource('dynamodb'), 
-                              "table_name" : os.environ.get("DYNAMODB_TABLE_NAME","NONE") }
 
-def respond(err, res=None):
+def build_failure_response(err):
     return {
-        'statusCode': '400' if err else '200',
-        'body': err.message if err else json.dumps(res,cls=CustomEncoder),
+        'statusCode': '400',
+        'body': err.message,
+        'headers': {
+            'Content-Type': 'application/json',
+        },
+    }
+
+def build_success_response(result : dict):
+    return {
+        'statusCode': '200',
+        'body': json.dumps(result,cls=CustomEncoder),
         'headers': {
             'Content-Type': 'application/json',
         },
@@ -28,9 +34,9 @@ def get_item(db_table, item_uuid):
             }
         )
         if 'Item' in response:
-            return respond(None, response['Item'])
+            return build_success_response(response['Item'])
         else:
-            return respond(ValueError('Item not found'))
+            return build_failure_response(ValueError('Item not found'))
         
     except:
         logger.exception("exception occurred while retrieving item in table")
@@ -39,9 +45,9 @@ def get_item(db_table, item_uuid):
 def get_items(db_table):
     response = db_table.scan(Limit = 100)
     if 'Items' in response:
-        return respond(None, response)
+        return build_success_response(response)
     else:
-        return respond(ValueError('Item not found'))
+        return build_failure_response(ValueError('Item not found'))
 
 
 def post_item(db_table, item):
@@ -49,34 +55,30 @@ def post_item(db_table, item):
         Item=item
     )
 
-def lambda_handler(event, context):
-    print(f'event {event}')
-    print(f'context {context}')
 
-    body = json.loads(event['body'])
-    user_name = body.get('user_name', None)
-    password = body.get('password', None)
+def on_get(event, context, db_table):
+    if 'queryStringParameters' in event and 'id' in event['queryStringParameters']:
+        return get_item(db_table, event['queryStringParameters']['id']) 
+    else:
+        return get_items(db_table)
     
-    response = {
-        'statusCode' : 200,
-        'body' : f'hello {user_name} from lambda'
+    
+def on_post(event, context, db_table):
+    result = post_item(db_table, event['body'])
+    return build_failure_response(None, result)
+
+
+def lambda_handler(event, context):
+    dynamodb = boto3.resource('dynamodb')
+    db_table = dynamodb.Table('products')
+    
+    handlers = {
+        "GET" : on_get,
+        "POST": on_post
     }
 
-    return response
-    #print("Received event: " + json.dumps(event, indent=2))
-
-    dynamodb = boto3.resource('dynamodb')
-    pace_table = dynamodb.Table('products')
     httpMethod = event['httpMethod']
-    if httpMethod == 'GET':
-        if 'queryStringParameters' in event and 'id' in event['queryStringParameters']:
-            return get_item(pace_table, event['queryStringParameters']['id']) 
-        else:
-            return get_items(pace_table)
-
-    elif httpMethod == 'POST':
-        result = post_item(pace_table, event['body'])
-        return respond(None, result)
-        
+    if httpMethod in handlers:
+        return handlers[httpMethod](event, context, db_table)     
     else:
-        return respond(ValueError('Unsupported method "{}"'.format(httpMethod)))
+        return build_failure_response(ValueError('Unsupported method "{}"'.format(httpMethod)))
