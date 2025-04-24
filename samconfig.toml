@@ -1,11 +1,11 @@
 version = 0.1
 
 [default.global.parameters]
-stack_name = "PACEAPI"
+stack_name = "SCI_API"
 region = "eu-west-1"
 
 [default.sync.parameters]
-template_file = "c:\\Users\\maxime\\source\\repos\\AWSTest2\\lambda\\PACE_SERVERLESS_LAMBDA\\template.yaml"
+template_file = "template.yaml"
 dependency_layer = false
 use_container = true
 watch = true

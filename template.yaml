@@ -1,11 +1,11 @@
 Transform: AWS::Serverless-2016-10-31
 Resources:
-  PACEBackend:
+  SciBackend:
     Type: AWS::Serverless::Function
     Properties:
       Description: !Sub
         - Stack ${AWS::StackName} Function ${ResourceName}
-        - ResourceName: PACEBackend
+        - ResourceName: SciBackend
       CodeUri: src
       Handler: app.lambda_handler
       Runtime: python3.11
@@ -13,23 +13,30 @@ Resources:
       Timeout: 3
       Tracing: Active
       Events:
-        PACEApiPOSTlogin:
+        SciApiPOSTlogin:
           Type: Api
           Properties:
             Path: /login
             Method: POST
-            RestApiId: !Ref PACEApi
+            RestApiId: !Ref SciApi
+      Environment:
+        Variables:
+          SCITABLE_TABLE_NAME: !Ref SciTable
+          SCITABLE_TABLE_ARN: !GetAtt SciTable.Arn
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref SciTable
   loginLogGroup:
     Type: AWS::Logs::LogGroup
     DeletionPolicy: Retain
     Properties:
-      LogGroupName: !Sub /aws/lambda/${PACEBackend}
-  PACEApi:
+      LogGroupName: !Sub /aws/lambda/${SciBackend}
+  SciApi:
     Type: AWS::Serverless::Api
     Properties:
       Name: !Sub
         - ${ResourceName} From Stack ${AWS::StackName}
-        - ResourceName: PACEApi
+        - ResourceName: SciApi
       StageName: Prod
       DefinitionBody:
         openapi: '3.0'
@@ -40,13 +47,13 @@ Resources:
               x-amazon-apigateway-integration:
                 httpMethod: POST
                 type: aws_proxy
-                uri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${PACEBackend.Arn}/invocations
+                uri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${SciBackend.Arn}/invocations
               responses: {}
       EndpointConfiguration: REGIONAL
       TracingEnabled: true
       Cors:
         MaxAge: 5
-  PACEMainTable:
+  SciTable:
     Type: AWS::DynamoDB::Table
     Properties:
       AttributeDefinitions:
