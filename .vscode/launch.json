@@ -7,17 +7,17 @@
         {
             "type": "aws-sam",
             "request": "direct-invoke",
-            "name": "PACE: API Gateway",
+            "name": "SCI: API Gateway",
             "invokeTarget": {
                 "target": "api",
                 "templatePath": "${workspaceFolder}/template.yaml",
-                "logicalId": "PACEBackend"
+                "logicalId": "SciBackend"
             },
             "api": {
-                "path": "/login",
+                "path": "/data",
                 "httpMethod": "post",
                 "payload": {
-                    "path" : "${workspaceFolder}/tests/payloads/api_payload.json"
+                    "path" : "${workspaceFolder}/tests/payloads/post_payload.json"
                 }
             }
         },

@@ -1,0 +1,6 @@
+{
+    "Product" : "PROD1234",
+    "Sample" : "ABC1234",
+    "DataType": "MappingParameters",
+    "Data" : "{'Vf' : '3.2', 'Ir' : '400'}"
+}

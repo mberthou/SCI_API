@@ -1,5 +1,5 @@
 {
-    "body": "{\"user_name\": \"tony_stark\", \"password\": \"ironman\"}",
+    "body": "{\"ID\": \"fd633986-2d51-4536-af6c-f0764635f335\", \"Data\": \"data to store for fd633986-2d51-4536-af6c-f0764635f335\"}",
     "resource": "/{proxy+}",
     "path": "/path/to/resource",
     "httpMethod": "POST",

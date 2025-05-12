@@ -12,20 +12,32 @@ Resources:
       MemorySize: 128
       Timeout: 3
       Tracing: Active
-      Events:
-        SciApiPOSTlogin:
-          Type: Api
-          Properties:
-            Path: /login
-            Method: POST
-            RestApiId: !Ref SciApi
       Environment:
         Variables:
-          SCITABLE_TABLE_NAME: !Ref SciTable
-          SCITABLE_TABLE_ARN: !GetAtt SciTable.Arn
+          SCIDATA_TABLE_NAME: !Ref SciData
+          SCIDATA_TABLE_ARN: !GetAtt SciData.Arn
       Policies:
         - DynamoDBCrudPolicy:
-            TableName: !Ref SciTable
+            TableName: !Ref SciData
+      Events:
+        SciApiPOSTdata:
+          Type: Api
+          Properties:
+            Path: /data
+            Method: POST
+            RestApiId: !Ref SciApi
+        SciApiGETdata:
+          Type: Api
+          Properties:
+            Path: /data
+            Method: GET
+            RestApiId: !Ref SciApi
+        SciApiPOSTdatamapping:
+          Type: Api
+          Properties:
+            Path: /data/mapping
+            Method: POST
+            RestApiId: !Ref SciApi
   loginLogGroup:
     Type: AWS::Logs::LogGroup
     DeletionPolicy: Retain
@@ -42,7 +54,20 @@ Resources:
         openapi: '3.0'
         info: {}
         paths:
-          /login:
+          /data:
+            post:
+              x-amazon-apigateway-integration:
+                httpMethod: POST
+                type: aws_proxy
+                uri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${SciBackend.Arn}/invocations
+              responses: {}
+            get:
+              x-amazon-apigateway-integration:
+                httpMethod: POST
+                type: aws_proxy
+                uri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${SciBackend.Arn}/invocations
+              responses: {}
+          /data/mapping:
             post:
               x-amazon-apigateway-integration:
                 httpMethod: POST
@@ -53,7 +78,7 @@ Resources:
       TracingEnabled: true
       Cors:
         MaxAge: 5
-  SciTable:
+  SciData:
     Type: AWS::DynamoDB::Table
     Properties:
       AttributeDefinitions:
