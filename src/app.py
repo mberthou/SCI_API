@@ -99,6 +99,54 @@ def on_get_data(event_in, context, db_table):
 def on_get_mapping_data(event_in, context, db_table):
     return None
 
+def on_get_mapping_site_data(event_in, context, db_table):
+    if 'queryStringParameters' not in event_in:
+        return build_failure_response(ArgumentError("queryStringParameters not defined"))
+    
+    if 'product' not in event_in['queryStringParameters']:
+        return build_failure_response(ArgumentError("product not defined in queryStringParameters"))
+    
+    if 'sample' not in event_in['queryStringParameters']:
+        return build_failure_response(ArgumentError("sample not defined in queryStringParameters"))
+    
+    if 'site' not in event_in['queryStringParameters']:
+        return build_failure_response(ArgumentError("site not defined in queryStringParameters"))
+
+    product_id = event_in['queryStringParameters']['product']
+    sample_id = event_in['queryStringParameters']['sample']
+    site_id = event_in['queryStringParameters']['site']
+    result = db_table.scan(
+            ExpressionAttributeValues = {
+                ":Product":{"S":f"{product_id}"},
+                ":Sample":f"{sample_id}",
+            }
+        )
+    
+    return build_success_response(result["Items"])
+
+from .mapping.site import _get_subsite_db_item, _post_subsite_in_db
+
+def on_get_mapping_subsite_data(event_in, context, db_table_in):
+    product_id = event_in['queryStringParameters']['product']
+    sample_id = event_in['queryStringParameters']['sample']
+    site_x = event_in['queryStringParameters']['site_x']
+    site_y = event_in['queryStringParameters']['site_y']
+    subsite_name = event_in['queryStringParameters']['subsite_name']
+    result = _get_subsite_db_item(db_table_in, product_id, sample_id, site_x,site_y,subsite_name)
+    return build_success_response(result["Items"])
+
+def on_post_mapping_subsite_data(event_in, context, db_table_in):
+    product_id = event_in['queryStringParameters']['product']
+    sample_id = event_in['queryStringParameters']['sample']
+    site_x = event_in['queryStringParameters']['site_x']
+    site_y = event_in['queryStringParameters']['site_y']
+    subsite_data = json.loads(event_in['body'])
+    result = _post_subsite_in_db(db_table_in, product_id, sample_id, site_x, site_y, subsite_data)
+    return build_success_response(result)
+
+def on_post_mapping_site_data(event_in, context, db_table):
+    return None
+
 def on_get_mapping_by_product(event_in, context, db_table):
     if 'queryStringParameters' not in event_in or 'product' not in event_in['queryStringParameters']:
         return build_failure_response(ArgumentError("product not defined in queryStringParameters"))
@@ -119,7 +167,7 @@ def on_post_mapping_data(event_in, context, db_table):
     result = post_mapping_item(db_table, event_in['body'])
     return build_success_response(result)
 
-def get_table():
+def _get_table():
     if os.getenv("AWS_SAM_LOCAL"):
         return boto3.resource(
             'dynamodb',
@@ -132,7 +180,7 @@ def get_table():
         return boto3.resource('dynamodb').Table(db_table_name)
 
 def lambda_handler(event_in, context_in):
-    db_table = get_table()
+    db_table = _get_table()
     
     data_handlers = {
         "/data" : {
@@ -143,8 +191,16 @@ def lambda_handler(event_in, context_in):
             "GET" : on_get_mapping_data,
             "POST": on_post_mapping_data
         },
+        "/data/mapping/site" : {
+            "GET" : on_get_mapping_site_data,
+            "POST": on_post_mapping_site_data
+        },
         "/data/mapping/product" : {
             "GET" : on_get_mapping_by_product
+        },
+        "/data/mapping/subsite" : {
+            "GET" : on_get_mapping_subsite_data,
+            "POST" : on_post_mapping_subsite_data
         }
     }
 

@@ -1,47 +1,7 @@
 from typing import Dict
 import json
 import uuid
-
-def _post_subsite_db_item(
-        db_table_in,
-        product_in,
-        sample_in,
-        site_x_in,
-        site_y_in,
-        subsite_data_in: Dict) -> Dict:
-    subsite_item = {
-        "id" : str(uuid.uuid4()),
-        "Product" : product_in,
-        "Sample" : sample_in,
-        "SiteX" : site_x_in,
-        "SiteY" : site_y_in,
-        "SubSiteName" : subsite_data_in["name"],
-        "DataType" : "Subsite",
-    }
-    for (key,value) in subsite_data_in:
-        if key is not "name":
-            subsite_item[f"Parameter_{key}"] = value
-    
-    return db_table_in.put_item(subsite_item)
-
-
-def _put_site_db_item(db_table_in, product_in, sample_in, site_x_in, site_y_in, site_name_in, selected_in, no_subs_in):
-    site_item = {
-        "id" : str(uuid.uuid4()),
-        "Product" : product_in,
-        "Sample" : sample_in,
-        "SiteX" : site_x_in,
-        "SiteY" : site_y_in,
-        "SiteName" : site_name_in,
-        "DataType" : "Site",
-        "Selected" : selected_in,
-        "Data" : json.dumps({
-            "NOSubs" : no_subs_in,
-        })
-    }
-    return db_table_in.put_item(site_item)
-
-
+from .site import _post_subsite_in_db, _put_site_db_item
 
 def post_mapping(db_table_in, item_in: str):
     product = item_in["Product"]
@@ -76,7 +36,7 @@ def post_mapping(db_table_in, item_in: str):
             site_data["sel"],
             site_data["NOSubs"])
         for subsite_data in site_data["subsites"]:
-            subsite_post_result = _post_subsite_db_item(
+            subsite_post_result = _post_subsite_in_db(
                 db_table_in, 
                 product,
                 sample,
