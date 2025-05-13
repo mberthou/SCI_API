@@ -26,9 +26,23 @@ def test_convert_subsite():
 
     assert api_subsite_data == api_subsite_data_back
     
+def test_post_subsite_in_db(lambda_environment, mock_dynamodb):
+    api_subsite_data = {
+        "name" : "subsite_post_test_subsite",
+        "Vf" : "3.2",
+        "Ir" : "1.2e-6"
+    }
+
+    _post_subsite_in_db(
+        _get_table(),
+        "test_product",
+        "test_sample",
+        "4",
+        "6",
+        api_subsite_data)
 
 
-def test_get_post_subsite  (lambda_environment, mock_dynamodb):
+def test_post_subsite_event  (lambda_environment, mock_dynamodb):
     api_subsite_data = {
         "name" : "subsite_post_test_subsite",
         "Vf" : "3.2",
@@ -48,13 +62,5 @@ def test_get_post_subsite  (lambda_environment, mock_dynamodb):
     }
 
     lambda_handler(event, None)
-
-    # _post_subsite_in_db(
-    #    db_table,
-    #    "test_product",
-    #    "test_sample",
-    #    "4",
-    #    "6",
-    #    api_subsite_data)
 
 
