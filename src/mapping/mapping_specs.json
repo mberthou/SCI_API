@@ -1,0 +1,34 @@
+{
+    "Product" : "string",
+    "Sample" : "string",
+    "Data" : {
+        "NOSitesX": int,
+        "NOSitesY": int,
+        "SiteWidth": int,
+        "SiteHeight": int,
+        "SiteX0": int,
+        "SiteY0": int,
+        "sites" : [
+            [
+                {
+                    "name" : str,
+                    "sel" : boolean,
+                    "NOSubs" : int,
+                    "subsites": [
+                        {
+                        "name": str,
+                        "x" : int,
+                        "y" : int,
+                        "w" : int,
+                        "h" : int,
+                        "sel" : int
+                        },
+                        ...
+                    ]
+                },
+                ...
+            ],
+            ...
+        ]
+    }
+}

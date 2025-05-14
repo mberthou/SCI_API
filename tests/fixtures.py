@@ -28,15 +28,11 @@ def mock_dynamodb(aws_credentials):
             AttributeDefinitions=[
                 {"AttributeName": "id", "AttributeType": "S"},
                 {"AttributeName": "Product", "AttributeType": "S"}
-                # {"AttributeName": "Sample", "AttributeType": "S"},
-                # {"AttributeName": "DataType", "AttributeType": "S"},
-                # {"AttributeName": "Data", "AttributeType": "S"}
             ],
             TableName=TABLE_NAME,
             KeySchema=[
                 {"AttributeName": "id", "KeyType": "HASH"},
                 {"AttributeName": "Product", "KeyType": "RANGE"}
-                # {"AttributeName": "SK", "KeyType": "RANGE"}
             ],
             BillingMode="PAY_PER_REQUEST"
         )

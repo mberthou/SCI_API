@@ -1,6 +1,7 @@
 from typing import Any, List, Dict
 import json
 import uuid
+from src.Encoders.dynamodb_encoder import DynamoDBEncoder
 
 def _convert_db_to_api_subsite(db_subsite_in:Dict[str,Any]):
     api_subsite_item = {
@@ -15,8 +16,8 @@ def _convert_api_to_db_subsite(
         id_in: str,
         product_in: str,
         sample_in: str,
-        site_x_in: str,
-        site_y_in: str,
+        site_x_in: int,
+        site_y_in: int,
         api_subsite_in: dict):
     db_subsite_item = {
         "id" : id_in,
@@ -58,8 +59,8 @@ def _post_subsite_in_db(
         db_table_in,
         product_in: str,
         sample_in: str,
-        site_x_in: str,
-        site_y_in: str,
+        site_x_in: int,
+        site_y_in: int,
         api_subsite_in: Dict) -> Dict:
     db_subsite_data = _convert_api_to_db_subsite(
         str(uuid.uuid4()),
@@ -68,23 +69,55 @@ def _post_subsite_in_db(
         site_x_in,
         site_y_in,
         api_subsite_in)
-    db_table_in.put_item(Item={"id" : db_subsite_data["id"], "Product" : db_subsite_data["Product"]})
+    db_table_in.put_item(Item=db_subsite_data)
     return f"subsite data succesfully posted with id {db_subsite_data}"
 
+""" posting site and subsites data in db
 
-def _put_site_db_item(db_table_in, product_in, sample_in, site_x_in, site_y_in, site_name_in, selected_in, no_subs_in):
+site posted with structure as follow:
+id : str
+Product : str
+Sample : str
+SiteX : str
+SiteY : str
+DataType: "Site"
+IsSelected: bool
+Data : {"NoSubs" : int }
+
+subsites data posted in different rows, see _post_subsite_in_db
+"""
+def _post_api_site_to_db(
+        db_table_in,
+        product_in: str,
+        sample_in: str,
+        site_x0_in: int,
+        site_y0_in: int,
+        row: int,
+        col: int,
+        site_data_in: Dict):
+    site_x = site_x0_in + col
+    site_y = site_y0_in + row
     site_item = {
         "id" : str(uuid.uuid4()),
         "Product" : product_in,
         "Sample" : sample_in,
-        "SiteX" : site_x_in,
-        "SiteY" : site_y_in,
-        "SiteName" : site_name_in,
+        "SiteX" : site_x,
+        "SiteY" : site_y,
         "DataType" : "Site",
-        "Selected" : selected_in,
+        "Name" : site_data_in["name"],
+        "IsSelected" : site_data_in["sel"] if "sel" in site_data_in else False,
         "Data" : json.dumps({
-            "NOSubs" : no_subs_in,
+            "NOSubs" : site_data_in["NOSubs"],
         })
     }
-    return db_table_in.put_item(Item=site_item)
+    db_table_in.put_item(Item=site_item)
+
+    for subsite_data in site_data_in["subsites"]:
+        _post_subsite_in_db(
+            db_table_in, 
+            product_in,
+            sample_in,
+            site_x,
+            site_y,
+            subsite_data)
 

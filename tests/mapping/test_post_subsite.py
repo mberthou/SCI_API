@@ -1,15 +1,18 @@
+import decimal
+from decimal import Decimal
 from tests.fixtures import lambda_environment, mock_dynamodb, aws_credentials
 from src.app import lambda_handler
 from src.mapping.site import _post_subsite_in_db, _convert_api_to_db_subsite, _convert_db_to_api_subsite
 from src.app import _get_table, lambda_handler
 import json
+from src.Encoders.custom_encoder import CustomEncoder
 
 
 def test_convert_subsite():
     api_subsite_data = {
         "name" : "test_subsite",
-        "Vf" : 3.2,
-        "Ir" : 1.2e-6
+        "Vf" : Decimal("3.2"),
+        "Ir" : Decimal("1.2e-6")
     }
 
     db_subsite_data = _convert_api_to_db_subsite(
@@ -28,9 +31,9 @@ def test_convert_subsite():
     
 def test_post_subsite_in_db(lambda_environment, mock_dynamodb):
     api_subsite_data = {
-        "name" : "subsite_post_test_subsite",
-        "Vf" : "3.2",
-        "Ir" : "1.2e-6"
+        "name" : "test_post_subsite_in_db_subsite",
+        "Vf" : Decimal("3.2"),
+        "Ir" : Decimal("1.2e-6")
     }
 
     _post_subsite_in_db(
@@ -44,21 +47,21 @@ def test_post_subsite_in_db(lambda_environment, mock_dynamodb):
 
 def test_post_subsite_event  (lambda_environment, mock_dynamodb):
     api_subsite_data = {
-        "name" : "subsite_post_test_subsite",
-        "Vf" : "3.2",
-        "Ir" : "1.2e-6"
+        "name" : "test_post_subsite_event_subsite",
+        "Vf" : 3.2,
+        "Ir" : 1.2e-6
     }  
     
     event = {
         "path" : "/data/mapping/subsite",
         "httpMethod" : "POST",
         "queryStringParameters" : {
-            "sample" : "subsite_post_test_sample",
-            "product" : "subsite_post_test_product",
+            "sample" : "test_post_subsite_event_sample",
+            "product" : "test_post_subsite_event_product",
             "site_x" : "5",
             "site_y" : "7",
         },
-        "body" : json.dumps(api_subsite_data)
+        "body" : json.dumps(api_subsite_data, cls=CustomEncoder)
     }
 
     lambda_handler(event, None)

@@ -1,14 +1,14 @@
 from typing import Dict
 import json
 import uuid
-from .site import _post_subsite_in_db, _put_site_db_item
+from .site import _post_subsite_in_db, _post_api_site_to_db
 
 def post_mapping(db_table_in, item_in: str):
     product = item_in["Product"]
     sample = item_in["Sample"]
     mapping_data = item_in["Data"]
-    site_x0 = int(item_in["SiteX0"])
-    site_y0 = int(item_in["SiteY0"])
+    site_x0 = int(mapping_data["SiteX0"])
+    site_y0 = int(mapping_data["SiteY0"])
 
     mapping_item = {
         "id" : str(uuid.uuid4()),
@@ -16,30 +16,17 @@ def post_mapping(db_table_in, item_in: str):
         "Sample" : sample,
         "SiteX0" : site_x0,
         "SiteY0" : site_y0,
-        "NOSitesX": item_in["NOSitesX"],
-        "NOSitesY": item_in["NOSitesY"],
-        "SiteWidth": item_in["SiteWidth"],
-        "SiteHeight": item_in["SiteHeight"],
+        "NOSitesX": mapping_data["NOSitesX"],
+        "NOSitesY": mapping_data["NOSitesY"],
+        "SiteWidth": mapping_data["SiteWidth"],
+        "SiteHeight": mapping_data["SiteHeight"],
     }
     db_table_in.put_item(mapping_item)
-    for site_data in mapping_data["Sites"]:
-        site_name = site_data["name"]
-        site_x = site_x0 + site_data["col"]
-        site_y = site_y0 + site_data["row"]
-        site_post_result = _put_site_db_item(
+    for site_data in mapping_data["sites"]:
+        _post_api_site_to_db(
             db_table_in, 
             product,
             sample,
-            site_x,
-            site_y,
-            site_name,
-            site_data["sel"],
-            site_data["NOSubs"])
-        for subsite_data in site_data["subsites"]:
-            subsite_post_result = _post_subsite_in_db(
-                db_table_in, 
-                product,
-                sample,
-                site_x,
-                site_y,
-                subsite_data)
+            site_x0,
+            site_y0,
+            site_data)

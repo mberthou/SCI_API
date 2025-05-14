@@ -2,10 +2,11 @@ from ctypes import ArgumentError
 import boto3
 import json
 import logging
-from .custom_encoder import CustomEncoder
+from .Encoders.custom_encoder import CustomEncoder
 from os import environ
 import os
 import uuid
+from decimal import Decimal
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
@@ -56,7 +57,7 @@ def get_items(db_table):
 
 def post_item(db_table, item_in: str):
     logger.info(f"adding item : '{item_in}'")
-    item = json.loads(item_in)
+    item = json.loads(item_in, parse_float=Decimal)
     expected_keys = ["Sample", "Data", "Product", "DataType"]
     key_extra_errors = [ f"unexpected key '{key}' in posted item" for key in item if key not in expected_keys]
     key_missing_errors = [ f"missing key '{key}' in posted item" for key in expected_keys if key not in item ]
@@ -64,7 +65,7 @@ def post_item(db_table, item_in: str):
         raise KeyError( ", ".join(key_missing_errors + key_extra_errors))
     
     if type(item["Data"]) is dict:
-        item["Data"] = json.dumps(item["Data"])
+        item["Data"] = json.dumps(item["Data"], cls=CustomEncoder)
     
     item["id"] = str(uuid.uuid4())
     return db_table.put_item(
@@ -73,7 +74,7 @@ def post_item(db_table, item_in: str):
 
 def post_mapping_item(db_table, item_in: str):
     logger.info(f"adding mapping item : '{item_in}'")
-    item = json.loads(item_in)
+    item = json.loads(item_in, parse_float=Decimal)
     expected_keys = ["Sample", "Data", "Product"]
     key_extra_errors = [ f"unexpected key '{key}' in posted item" for key in item if key not in expected_keys]
     key_missing_errors = [ f"missing key '{key}' in posted item" for key in expected_keys if key not in item ]
@@ -81,7 +82,7 @@ def post_mapping_item(db_table, item_in: str):
         raise KeyError( ", ".join(key_missing_errors + key_extra_errors))
     
     if type(item["Data"]) is dict:
-        item["Data"] = json.dumps(item["Data"])
+        item["Data"] = json.dumps(item["Data"], cls = CustomEncoder)
     
     item["id"] = str(uuid.uuid4())
     item["DataType"] = "MappingData"
@@ -140,7 +141,7 @@ def on_post_mapping_subsite_data(event_in, context, db_table_in):
     sample_id = event_in['queryStringParameters']['sample']
     site_x = event_in['queryStringParameters']['site_x']
     site_y = event_in['queryStringParameters']['site_y']
-    subsite_data = json.loads(event_in['body'])
+    subsite_data = json.loads(event_in['body'], parse_float=Decimal)
     result = _post_subsite_in_db(db_table_in, product_id, sample_id, site_x, site_y, subsite_data)
     return build_success_response(result)
 
