@@ -7,6 +7,7 @@ from os import environ
 import os
 import uuid
 from decimal import Decimal
+from .mapping.subsite import _get_subsite_db_item, _post_subsite_in_db
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
@@ -124,8 +125,6 @@ def on_get_mapping_site_data(event_in, context, db_table):
         )
     
     return build_success_response(result["Items"])
-
-from .mapping.site import _get_subsite_db_item, _post_subsite_in_db
 
 def on_get_mapping_subsite_data(event_in, context, db_table_in):
     product_id = event_in['queryStringParameters']['product']

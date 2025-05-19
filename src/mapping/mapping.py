@@ -1,7 +1,7 @@
 from typing import Dict
 import json
 import uuid
-from .site import _post_subsite_in_db, _post_api_site_to_db
+from .site import _post_api_site_to_db
 
 def post_mapping(db_table_in, item_in: str):
     product = item_in["Product"]
