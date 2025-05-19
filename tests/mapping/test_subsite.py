@@ -1,8 +1,7 @@
 import decimal
 from decimal import Decimal
 from tests.fixtures import lambda_environment, mock_dynamodb, aws_credentials
-from src.app import lambda_handler
-from src.mapping.site import _post_subsite_in_db, _convert_api_to_db_subsite, _convert_db_to_api_subsite
+from src.mapping.subsite import _post_subsite_in_db, _convert_api_to_db_subsite, _convert_db_to_api_subsite
 from src.app import _get_table, lambda_handler
 import json
 from src.Encoders.custom_encoder import CustomEncoder
@@ -37,12 +36,22 @@ def test_post_subsite_in_db(lambda_environment, mock_dynamodb):
     }
 
     _post_subsite_in_db(
-        _get_table(),
-        "test_product",
-        "test_sample",
-        "4",
-        "6",
-        api_subsite_data)
+        db_table_in = _get_table(),
+        product_in = "test_post_subsite_in_db_product",
+        sample_in = "test_post_subsite_in_db_sample",
+        site_x_in = "4",
+        site_y_in = "6",
+        api_subsite_in = api_subsite_data)
+    
+    result = _get_table().scan(
+            ExpressionAttributeValues = {
+                ":Product":{"S":"test_post_subsite_in_db_product"},
+                ":Sample":{"S","test_post_subsite_in_db_sample"},
+                ":name":{"S","test_post_subsite_in_db_subsite"}
+            }
+        )
+    
+    assert result["Count"] == 1
 
 
 def test_post_subsite_event  (lambda_environment, mock_dynamodb):
@@ -65,5 +74,15 @@ def test_post_subsite_event  (lambda_environment, mock_dynamodb):
     }
 
     lambda_handler(event, None)
+
+    result = _get_table().scan(
+            ExpressionAttributeValues = {
+                ":Product":{"S":"test_post_subsite_event_sample"},
+                ":Sample":{"S","test_post_subsite_event_product"},
+                ":name":{"S","test_post_subsite_event_subsite"}
+            }
+        )
+    
+    assert result["Count"] == 1
 
 
