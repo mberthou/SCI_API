@@ -95,11 +95,46 @@ Resources:
     Type: AWS::DynamoDB::Table
     Properties:
       AttributeDefinitions:
-        - AttributeName: id
+        - AttributeName: Id
+          AttributeType: S
+        - AttributeName: ParentId
+          AttributeType: S
+        - AttributeName: SampleId
+          AttributeType: S
+        - AttributeName: SubsampleId
+          AttributeType: S
+        - AttributeName: MeasurementId
           AttributeType: S
       BillingMode: PAY_PER_REQUEST
       KeySchema:
-        - AttributeName: id
+        - AttributeName: SampleId
           KeyType: HASH
+        - AttributeName: Id
+          KeyType: RANGE
+      LocalSecondaryIndexes:
+        - IndexName: SubsampleIdx
+          KeySchema: 
+            - AttributeName: SampleId
+              KeyType: HASH
+            - AttributeName: SubsampleId
+              KeyType: RANGE        
+          Projection: 
+            ProjectionType: ALL
+        - IndexName: ParentIdx
+          KeySchema: 
+            - AttributeName: SampleId
+              KeyType: HASH
+            - AttributeName: ParentId
+              KeyType: RANGE        
+          Projection: 
+            ProjectionType: KEYS_ONLY
+        - IndexName: MeasurementIdx
+          KeySchema: 
+            - AttributeName: SampleId
+              KeyType: HASH
+            - AttributeName: MeasurementId
+              KeyType: RANGE        
+          Projection: 
+            ProjectionType: KEYS_ONLY
       StreamSpecification:
         StreamViewType: NEW_AND_OLD_IMAGES

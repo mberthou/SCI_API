@@ -1,8 +1,7 @@
 
 {
-    "ProductId" : "RAC1",
-    "SampleId" : "792af5fe-9df3-4687-a3e5-dedb3b53da52",
-    "MeasurementId" : "fd7a25cb-d7f3-4baf-b83f-fcf2913f69b9",
+    "Product" : "test_post_mapping_product",
+    "Sample" : "test_post_mapping_sample",
     "Data" : {
         "NOSitesX": 10,
         "NOSitesY": 10,

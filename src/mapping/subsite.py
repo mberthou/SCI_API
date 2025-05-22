@@ -1,94 +1,78 @@
-from typing import Any, List, Dict
-import json
+from operator import contains
+from typing import Any, Dict
+from boto3.dynamodb.conditions import And, Attr, Key
+from functools import reduce
+import re
 import uuid
-from src.Encoders.dynamodb_encoder import DynamoDBEncoder
+import copy
 
 def _convert_db_to_api_subsite(db_subsite_in:Dict[str,Any]):
-    api_subsite_item = {
-        key[10:]:value
-        for key,value in db_subsite_in.items()
-        if key.startswith("Parameter_")
-    }
-    api_subsite_item["name"] = db_subsite_in["SubsiteName"]
-    return api_subsite_item
+    # api_subsite_item = {
+    #     key[10:]:value
+    #     for key,value in db_subsite_in.items()
+    #     if key.startswith("Parameter_")
+    # }
+
+    # m = re.match("^X\dY\d_(.+)$", db_subsite_in["SubsampleId"])
+    # if m is None:
+    #     raise RuntimeError("Subsite name is not properly built in subsite data block")
+
+    # api_subsite_item["name"] = m.group(1)
+    return copy.deepcopy(db_subsite_in["Data"])
 
 def _convert_api_to_db_subsite(
-        id_in: str,
+        parent_id_in:str,
+        sample_id_in: str,
+        measurement_id_in: str,
         product_in: str,
-        sample_in: str,
         site_x_in: int,
         site_y_in: int,
-        api_subsite_in: dict):
-    db_subsite_item = {
-        "id" : id_in,
-        "Product" : product_in,
-        "Sample" : sample_in,
-        "SiteX" : site_x_in,
-        "SiteY" : site_y_in,
-        "SubsiteName" : api_subsite_in["name"],
+        api_subsite_in: dict[str, Any]):
+    subsite_name = api_subsite_in["name"]
+    return {
+        "ParentId" : parent_id_in,
+        "Id" : str(uuid.uuid4()),
+        "SampleId" : sample_id_in,
+        "MeasurementId" : measurement_id_in,
+        "ProductId" : product_in,
+        "SubsampleId" : f"X{site_x_in}Y{site_y_in}_{subsite_name}",
         "DataType" : "Subsite",
+        "Data" : copy.deepcopy(api_subsite_in)
     }
-    # add data fields other than name as parameters
-    db_subsite_item.update({
-        f"Parameter_{key}":value
-        for key,value in api_subsite_in.items()
-        if key != "name"
-    })
-    return db_subsite_item
 
-def _get_subsite_db_item(
-        db_table_in,
-        product_id_in,
-        sample_id_in,
-        site_x_in,
-        site_y_in,
-        subsite_name_in):
-    results = db_table_in.scan(
-            ExpressionAttributeValues = {
-                ":Product":{"S":f"{product_id_in}"},
-                ":Sample":f"{sample_id_in}",
-                ":SiteX" : f"{site_x_in}",
-                ":SiteY" : f"{site_y_in}",
-                ":SubsiteName" : f"{subsite_name_in}",
-                ":DataType" : "Subsite",
-            }
-        )    
-    return [_convert_db_to_api_subsite(item) for item in results["Items"]]
-
+'''return Id of posted subsite'''
 def _post_subsite_in_db(
         db_table_in,
-        product_in: str,
+        parent_id_in: str,
         sample_in: str,
+        measurement_id_in: str,
+        product_in: str,
         site_x_in: int,
         site_y_in: int,
         api_subsite_in: Dict) -> Dict:
     db_subsite_data = _convert_api_to_db_subsite(
-        str(uuid.uuid4()),
-        product_in,
+        parent_id_in,
         sample_in,
+        measurement_id_in,
+        product_in,
         site_x_in,
         site_y_in,
         api_subsite_in)
     db_table_in.put_item(Item=db_subsite_data)
-    return f"subsite data succesfully posted with id {db_subsite_data}"
+    return db_subsite_data["Id"]
 
 def __get_db_subsites_items(
         db_table_in,
-        product_id_in: str,
         sample_id_in: str,
-        site_x_in: int,
-        site_y_in: int):
-    results = db_table_in.scan(
-            ExpressionAttributeValues = {
-                ":Product":{"S":f"{product_id_in}"},
-                ":Sample":f"{sample_id_in}",
-                ":SiteX" : f"{site_x_in}",
-                ":SiteY" : f"{site_y_in}",
-                ":DataType" : "Subsite",
-            }
-        )
+        parent_id_in: str):
+    results = db_table_in.query(
+        IndexName="ParentIdx",
+        KeyConditionExpression=(
+            Key("SampleId").eq(sample_id_in) &
+            Key("ParentId").eq(parent_id_in)
+        ))
     
     if not results["Items"]:
-        raise RuntimeError(f"failed to find Subsites at coordinates ({site_x_in},{site_y_in})")
+        raise RuntimeError(f"failed to find Subsites for parent with id {parent_id_in}")
 
     return results["Items"]

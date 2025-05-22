@@ -1,6 +1,9 @@
 {
-    "Product" : "PROD1234",
-    "Sample" : "ABC1234",
-    "DataType": "MappingParameters",
-    "Data" : "{'Vf' : '3.2', 'Ir' : '400'}"
+    "ProductId" : "PROD1234",
+    "SampleId" : "ABC1234",
+    "SubsampleId" : "1edb0c33-14aa-46b6-a5f6-cf1bbe86da97",
+    "ParentId" : "86a6d996-cdbb-4bb6-8044-c1c883ed2ad1",
+    "MeasurementId" : "14de4403-8688-4a87-9768-29cd990b21c1",
+    "DataType": "testdata",
+    "Data" : { "Vf" : 3.2, "Ir" : 400}
 }

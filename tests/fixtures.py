@@ -24,15 +24,45 @@ def aws_credentials():
 def mock_dynamodb(aws_credentials):
     with mock_aws():
         db_connection = boto3.client("dynamodb")
+        
         db_connection.create_table(
-            AttributeDefinitions=[
-                {"AttributeName": "id", "AttributeType": "S"},
-                {"AttributeName": "Product", "AttributeType": "S"}
+            AttributeDefinitions=[                
+                {"AttributeName": "SampleId", "AttributeType": "S"},
+                {"AttributeName": "Id", "AttributeType": "S"},
+                {"AttributeName": "MeasurementId", "AttributeType": "S"},
+                {"AttributeName": "SubsampleId", "AttributeType": "S"},
+                {"AttributeName": "ParentId", "AttributeType": "S"},
             ],
             TableName=TABLE_NAME,
             KeySchema=[
-                {"AttributeName": "id", "KeyType": "HASH"},
-                {"AttributeName": "Product", "KeyType": "RANGE"}
+                {"AttributeName": "SampleId", "KeyType": "HASH"},
+                {"AttributeName": "Id", "KeyType": "RANGE"}
+            ],
+            LocalSecondaryIndexes=[
+                {
+                    "IndexName":"SubsampleIdx",
+                    "KeySchema":[
+                        {"AttributeName": "SampleId", "KeyType": "HASH"},
+                        {"AttributeName": "SubsampleId", "KeyType": "RANGE"}
+                    ],
+                    "Projection": { "ProjectionType": "ALL"}
+                },
+                {
+                    "IndexName":"MeasurementIdx",
+                    "KeySchema":[
+                        {"AttributeName": "SampleId", "KeyType": "HASH"},
+                        {"AttributeName": "MeasurementId", "KeyType": "RANGE"}
+                    ],
+                    "Projection": { "ProjectionType": "ALL"}
+                },
+                {
+                    "IndexName":"ParentIdx",
+                    "KeySchema":[
+                        {"AttributeName": "SampleId", "KeyType": "HASH"},
+                        {"AttributeName": "ParentId", "KeyType": "RANGE"}
+                    ],
+                    "Projection": { "ProjectionType": "ALL"}
+                }
             ],
             BillingMode="PAY_PER_REQUEST"
         )
