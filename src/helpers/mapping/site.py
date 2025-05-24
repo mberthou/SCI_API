@@ -1,10 +1,6 @@
 from typing import Any, List, Dict
-import json
-from xml.dom.minidom import Attr
 from .subsite import _post_subsite_in_db, __get_db_subsites_items, _convert_db_to_api_subsite
-from decimal import Decimal
 from boto3.dynamodb.conditions import And, Attr, Key
-from functools import reduce
 import re
 import uuid
 import copy

@@ -26,9 +26,10 @@ def mock_dynamodb(aws_credentials):
         db_connection = boto3.client("dynamodb")
         
         db_connection.create_table(
-            AttributeDefinitions=[                
+            AttributeDefinitions=[  
+                {"AttributeName": "Id", "AttributeType": "S"},           
                 {"AttributeName": "SampleId", "AttributeType": "S"},
-                {"AttributeName": "Id", "AttributeType": "S"},
+                {"AttributeName": "ProductId", "AttributeType": "S"},
                 {"AttributeName": "MeasurementId", "AttributeType": "S"},
                 {"AttributeName": "SubsampleId", "AttributeType": "S"},
                 {"AttributeName": "ParentId", "AttributeType": "S"},
@@ -39,6 +40,14 @@ def mock_dynamodb(aws_credentials):
                 {"AttributeName": "Id", "KeyType": "RANGE"}
             ],
             LocalSecondaryIndexes=[
+                {
+                    "IndexName":"ProductIdx",
+                    "KeySchema":[
+                        {"AttributeName": "SampleId", "KeyType": "HASH"},
+                        {"AttributeName": "ProductId", "KeyType": "RANGE"}
+                    ],
+                    "Projection": { "ProjectionType": "ALL"}
+                },
                 {
                     "IndexName":"SubsampleIdx",
                     "KeySchema":[

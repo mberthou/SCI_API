@@ -1,7 +1,7 @@
 from queue import Empty
 from mypy_boto3_dynamodb import DynamoDBClient
 from tests.fixtures import lambda_environment, mock_dynamodb, aws_credentials
-from src.mapping.site import _post_api_site_to_db, _get_api_sites_from_db
+from src.helpers.mapping.site import _post_api_site_to_db, _get_api_sites_from_db
 from src.app import _get_table, lambda_handler
 from decimal import Decimal
 from boto3.dynamodb.conditions import And, Attr, Key

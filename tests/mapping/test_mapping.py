@@ -1,5 +1,5 @@
 from tests.fixtures import lambda_environment, mock_dynamodb, aws_credentials
-from src.mapping.mapping import post_mapping, get_mapping
+from src.helpers.mapping.mapping import post_mapping, get_mapping
 from src.app import _get_table
 from decimal import Decimal
 import json
