@@ -1,8 +1,5 @@
-from operator import contains
 from typing import Any, Dict
 from boto3.dynamodb.conditions import And, Attr, Key
-from functools import reduce
-import re
 import uuid
 import copy
 

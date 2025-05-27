@@ -1,7 +1,6 @@
 from ast import Dict
 from .site import _get_api_sites_from_db, _post_api_site_to_db
 import uuid
-import re
 
 """
 returns: new mapping's row Id (primary key is composed of Id and SampleId)

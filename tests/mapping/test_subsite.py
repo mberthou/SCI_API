@@ -1,16 +1,15 @@
-import decimal
 from decimal import Decimal
 from tests.fixtures import lambda_environment, mock_dynamodb, aws_credentials
-from src.helpers.mapping.subsite import (
+from src.app.helpers.mapping.subsite import (
     _post_subsite_in_db, 
     _convert_api_to_db_subsite, 
     _convert_db_to_api_subsite,
     __get_db_subsites_items)
-from src.app import _get_table, lambda_handler
+from src.app.app import _get_table, lambda_handler
 import json
-from src.Encoders.custom_encoder import CustomEncoder
+from src.app.encoders.custom_encoder import CustomEncoder
 import uuid
-from boto3.dynamodb.conditions import And, Attr, Key
+from boto3.dynamodb.conditions import Attr
 
 
 def test_convert_subsite():

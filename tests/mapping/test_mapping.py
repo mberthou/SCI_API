@@ -1,9 +1,9 @@
 from tests.fixtures import lambda_environment, mock_dynamodb, aws_credentials
-from src.helpers.mapping.mapping import post_mapping, get_mapping
-from src.app import _get_table
+from src.app.helpers.mapping.mapping import post_mapping, get_mapping
+from src.app.app import _get_table
 from decimal import Decimal
 import json
-from boto3.dynamodb.conditions import And, Attr, Key
+from boto3.dynamodb.conditions import Key
 from functools import reduce
 
 subsite_separate_storage = False

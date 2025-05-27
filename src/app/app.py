@@ -1,14 +1,23 @@
 import boto3
 import json
 import logging
-from .Encoders.custom_encoder import CustomEncoder
-from os import environ
 import os
 import uuid
 from decimal import Decimal
 from .handlers.product import handler_get_product_list
 from .helpers.api import build_failure_response, build_success_response
-from .handlers.mapping import *
+from .handlers.mapping import (
+    on_get_mapping_info,
+    on_get_mapping_info_by_measurement_id,
+    on_get_full_mapping,
+    on_post_mapping_data,
+    on_get_mapping_site_data,
+    on_post_mapping_site_data,
+    on_get_mapping_subsite_data,
+    on_post_mapping_subsite_data,
+    on_get_mapping_by_sample,
+)
+from .encoders.custom_encoder import CustomEncoder
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
@@ -74,7 +83,7 @@ def _get_table():
             endpoint_url="http://localhost:8000/"
         ).Table("SciData")
     else:
-        db_table_name = environ.get("SCIDATA_TABLE_NAME", None)
+        db_table_name = os.environ.get("SCIDATA_TABLE_NAME", None)
         if not db_table_name:
             raise SystemError("DynamoDb SCIDATA_TABLE_NAME not defined in environement variables")  
         return boto3.resource('dynamodb').Table(db_table_name)

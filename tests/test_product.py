@@ -1,11 +1,8 @@
-from src.helpers.product import get_all_products_and_samples
+from src.app.helpers.product import get_all_products_and_samples
 from tests.fixtures import lambda_environment, mock_dynamodb, aws_credentials
-from src.app import _get_table
+from src.app.app import _get_table
 from decimal import Decimal
-import json
-from boto3.dynamodb.conditions import And, Attr, Key
-from functools import reduce
-from src.helpers.generic_sample import post_generic_sample_data
+from src.app.helpers.generic_sample import post_generic_sample_data
 
 subsite_separate_storage = False
 
@@ -17,40 +14,44 @@ def test_get_products(lambda_environment, mock_dynamodb):
         generic_sample_data_1 = {
             "SampleId" : "sample1",
             "ProductId" : "product1",
+            "ParentId" : "None",
             "MeasurementId" : "measurement1",
             "SubsampleId" : "None",
             "DataType" : "GenericSample",
-            "Data" : { "Vf" : Decimal(3.2), "Ir" : Decimal(1e-6) }
+            "Data" : { "Vf" : Decimal('3.2'), "Ir" : Decimal('1e-6') }
         }
         post_generic_sample_data(app_config, db_table, generic_sample_data_1)
 
         generic_sample_data_2 = {
             "SampleId" : "sample2",
             "ProductId" : "product1",
+            "ParentId" : "None",
             "MeasurementId" : "measurement1",
             "SubsampleId" : "None",
             "DataType" : "GenericSample",
-            "Data" : { "Vf" : Decimal(3.2), "Ir" : Decimal(1e-6) }
+            "Data" : { "Vf" : Decimal('3.2'), "Ir" : Decimal('1e-6') }
         }
         post_generic_sample_data(app_config, db_table, generic_sample_data_2)
 
         generic_sample_data_3 = {
             "SampleId" : "sample3",
             "ProductId" : "product2",
+            "ParentId" : "None",
             "MeasurementId" : "measurement1",
             "SubsampleId" : "None",
             "DataType" : "GenericSample",
-            "Data" : { "Vf" : Decimal(3.2), "Ir" : Decimal(1e-6) }
+            "Data" : { "Vf" : Decimal('3.2'), "Ir" : Decimal('1e-6') }
         }
         post_generic_sample_data(app_config, db_table, generic_sample_data_3)
 
         generic_sample_data_4 = {
             "SampleId" : "sample3",
             "ProductId" : "product2",
+            "ParentId" : "None",
             "MeasurementId" : "measurement1",
             "SubsampleId" : "None",
             "DataType" : "GenericSample",
-            "Data" : { "Vf" : Decimal(3.2), "Ir" : Decimal(1e-6) }
+            "Data" : { "Vf" : Decimal('3.2'), "Ir" : Decimal('1e-6') }
         }
         post_generic_sample_data(app_config, db_table, generic_sample_data_4)
         

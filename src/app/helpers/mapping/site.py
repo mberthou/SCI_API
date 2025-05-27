@@ -1,9 +1,8 @@
 from typing import Any, List, Dict
-from .subsite import _post_subsite_in_db, __get_db_subsites_items, _convert_db_to_api_subsite
-from boto3.dynamodb.conditions import And, Attr, Key
-import re
+from boto3.dynamodb.conditions import Key
 import uuid
 import copy
+from .subsite import _post_subsite_in_db, __get_db_subsites_items, _convert_db_to_api_subsite
 
 """ posting site and subsites data in db
 

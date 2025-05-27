@@ -1,5 +1,5 @@
 from typing import Dict, List
-from src.Encoders.custom_encoder import CustomEncoder
+from ..encoders.custom_encoder import CustomEncoder
 import json
 
 def build_failure_response(error_message:str):    

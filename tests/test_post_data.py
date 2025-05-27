@@ -1,5 +1,5 @@
 from fixtures import lambda_environment, mock_dynamodb, aws_credentials
-from src.app import lambda_handler
+from src.app.app import lambda_handler
 
 def test_post_data(lambda_environment, mock_dynamodb):
     with open("tests/payloads/post_payload.json") as payload_file:
