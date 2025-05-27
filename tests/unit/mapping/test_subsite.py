@@ -1,5 +1,5 @@
 from decimal import Decimal
-from tests.fixtures import lambda_environment, mock_dynamodb, aws_credentials
+from ..fixtures import lambda_environment, mock_dynamodb, aws_credentials
 from src.app.helpers.mapping.subsite import (
     _post_subsite_in_db, 
     _convert_api_to_db_subsite, 

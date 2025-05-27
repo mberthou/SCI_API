@@ -1,14 +1,16 @@
 from src.app.helpers.product import get_all_products_and_samples
-from tests.fixtures import lambda_environment, mock_dynamodb, aws_credentials
+from tests.unit.fixtures import lambda_environment, mock_dynamodb, aws_credentials
 from src.app.app import _get_table
 from decimal import Decimal
 from src.app.helpers.generic_sample import post_generic_sample_data
+import os
 
 subsite_separate_storage = False
+os.chdir(os.path.dirname(__file__))
 
 def test_get_products(lambda_environment, mock_dynamodb):
     app_config = {"subsite_separate_storage":False}
-    with open("tests/mapping/test_data/test_post_mapping.json") as f:
+    with open("mapping/test_data/test_post_mapping.json") as f:
         db_table = _get_table()
 
         generic_sample_data_1 = {

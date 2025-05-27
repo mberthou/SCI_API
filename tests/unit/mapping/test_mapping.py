@@ -1,16 +1,17 @@
-from tests.fixtures import lambda_environment, mock_dynamodb, aws_credentials
+from ..fixtures import lambda_environment, mock_dynamodb, aws_credentials
 from src.app.helpers.mapping.mapping import post_mapping, get_mapping
 from src.app.app import _get_table
 from decimal import Decimal
 import json
 from boto3.dynamodb.conditions import Key
-from functools import reduce
+import os
 
+os.chdir(os.path.dirname(__file__))
 subsite_separate_storage = False
 
 def test_post_mapping(lambda_environment, mock_dynamodb):
     app_config = {"subsite_separate_storage":False}
-    with open("tests/mapping/test_data/test_post_mapping.json") as f:
+    with open("test_data/test_post_mapping.json") as f:
         api_site_data = json.loads(f.read(), parse_float=Decimal, parse_int=int)
         api_site_data["ProductId"] = "test_post_mapping_1_product"
         api_site_data["SampleId"] = "test_post_mapping_1_sample"
@@ -28,7 +29,7 @@ def test_post_mapping(lambda_environment, mock_dynamodb):
 def test_post_mapping_subsites_separate_storage(lambda_environment, mock_dynamodb):
     app_config = {"subsite_separate_storage":True}
     id_prefix = "test_post_mapping_subsites_separate_storage"
-    with open("tests/mapping/test_data/test_post_mapping.json") as f:
+    with open("test_data/test_post_mapping.json") as f:
         api_site_data = json.loads(f.read(), parse_float=Decimal, parse_int=int)
         api_site_data["ProductId"] = id_prefix + "_1_product"
         api_site_data["SampleId"] = id_prefix + "_1_sample"
@@ -45,7 +46,7 @@ def test_post_mapping_subsites_separate_storage(lambda_environment, mock_dynamod
 
 def test_get_mapping(lambda_environment, mock_dynamodb):
     app_config = {"subsite_separate_storage":False}
-    with open("tests/mapping/test_data/test_post_mapping.json") as f:
+    with open("test_data/test_post_mapping.json") as f:
         api_mapping_posted = json.loads(f.read(), parse_float=Decimal, parse_int=int)
         api_mapping_posted["ProductId"] = "test_get_mapping_1_product"
         api_mapping_posted["SampleId"] = "test_get_mapping_1_sample"
