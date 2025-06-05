@@ -1,0 +1,2 @@
+codeguru_profiler_agent
+boto3
