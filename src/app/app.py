@@ -18,6 +18,8 @@ from .handlers.mapping import (
     on_get_mapping_by_sample,
 )
 from .encoders.custom_encoder import CustomEncoder
+from codeguru_profiler_agent import with_lambda_profiler
+
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
@@ -50,14 +52,14 @@ def get_items(db_table):
 def post_item(db_table, item_in: str):
     logger.info(f"adding item : '{item_in}'")
     item = json.loads(item_in, parse_float=Decimal)
-    expected_keys = ["SampleId", "MeasurementId", "ParentId", "SubsampleId", "DataType", "Data", "ProductId"]
+    expected_keys = ["SampleId", "MeasurementId", "ParentId", "SubsampleId", "DataType", "Content", "ProductId"]
     key_extra_errors = [ f"unexpected key '{key}' in posted item" for key in item if key not in expected_keys]
     key_missing_errors = [ f"missing key '{key}' in posted item" for key in expected_keys if key not in item ]
     if key_missing_errors or key_extra_errors:
         raise KeyError( ", ".join(key_missing_errors + key_extra_errors))
     
-    if type(item["Data"]) is dict:
-        item["Data"] = json.dumps(item["Data"], cls=CustomEncoder)
+    if type(item["Content"]) is dict:
+        item["Content"] = json.dumps(item["Content"], cls=CustomEncoder)
     
     item["Id"] = str(uuid.uuid4())
     return db_table.put_item(
@@ -89,6 +91,7 @@ def _get_table():
         return boto3.resource('dynamodb').Table(db_table_name)
 
 
+@with_lambda_profiler(profiling_group_name="SciData-profiling")
 def lambda_handler(event_in, context_in):
     db_table = _get_table()
 

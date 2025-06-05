@@ -1,0 +1,5 @@
+moto
+deepdiff
+pytest
+boto3
+mypy_boto3_dynamodb

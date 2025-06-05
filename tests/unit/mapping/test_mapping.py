@@ -59,5 +59,5 @@ def test_get_mapping(lambda_environment, mock_dynamodb):
 
         assert api_mapping['MeasurementId'] == api_mapping_posted["MeasurementId"]
         assert api_mapping['ProductId'] == api_mapping_posted["ProductId"]
-        assert api_mapping["Data"]["sites"][0][0]["name"] == api_mapping_posted["Data"]["sites"][0][0]["name"]
-        assert api_mapping["Data"]["sites"][9][9]["name"] == api_mapping_posted["Data"]["sites"][9][9]["name"]
+        assert api_mapping["Content"]["sites"][0][0]["name"] == api_mapping_posted["Content"]["sites"][0][0]["name"]
+        assert api_mapping["Content"]["sites"][9][9]["name"] == api_mapping_posted["Content"]["sites"][9][9]["name"]

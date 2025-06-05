@@ -2,7 +2,7 @@
 {
     "Product" : "test_post_mapping_product",
     "Sample" : "test_post_mapping_sample",
-    "Data" : {
+    "Content" : {
         "NOSitesX": 10,
         "NOSitesY": 10,
         "SiteWidth": 10000,

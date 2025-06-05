@@ -5,5 +5,5 @@
     "ParentId" : "86a6d996-cdbb-4bb6-8044-c1c883ed2ad1",
     "MeasurementId" : "14de4403-8688-4a87-9768-29cd990b21c1",
     "DataType": "testdata",
-    "Data" : { "Vf" : 3.2, "Ir" : 400}
+    "Content" : { "Vf" : 3.2, "Ir" : 400}
 }

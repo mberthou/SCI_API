@@ -31,14 +31,14 @@ def assert_query_string_parameters(event_in:Dict, expected_keys_in: List[str]):
     
     key_extra_errors = [ 
         f"unexpected key '{key}' in posted item" 
-        for key in event_in["QueryStringParameters"] 
+        for key in event_in["queryStringParameters"] 
         if key not in expected_keys_in
     ]
     key_missing_errors = [ 
         f"missing key '{key}' in posted item" 
         for key in expected_keys_in 
-        if key not in event_in["QueryStringParameters"]
+        if key not in event_in["queryStringParameters"]
     ]
     
     if key_missing_errors or key_extra_errors:
-        raise KeyError( ", ".join(key_missing_errors + key_extra_errors))
+        raise KeyError(", ".join(key_missing_errors + key_extra_errors))

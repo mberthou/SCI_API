@@ -3,7 +3,7 @@
     "ProductId" : "RAC1",
     "SampleId" : "792af5fe-9df3-4687-a3e5-dedb3b53da52",
     "MeasurementId" : "fd7a25cb-d7f3-4baf-b83f-fcf2913f69b9",
-    "Data" : {
+    "Content" : {
         "NOSitesX": 10,
         "NOSitesY": 10,
         "SiteWidth": 10000,

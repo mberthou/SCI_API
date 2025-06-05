@@ -1,5 +1,5 @@
 {
-    "body": "{\"Id\": \"fd633986-2d51-4536-af6c-f0764635f335\", \"ParentId\": \"None\", \"SampleId\": \"test_sample\", \"MeasurementId\": \"test_sample\", \"SubsampleId\": \"test_sample\", \"DataType\": \"test_data\", \"Data\": \"data to store for fd633986-2d51-4536-af6c-f0764635f335\"}",
+    "body": "{\"Id\": \"fd633986-2d51-4536-af6c-f0764635f335\", \"ParentId\": \"None\", \"SampleId\": \"test_sample\", \"MeasurementId\": \"test_sample\", \"SubsampleId\": \"test_sample\", \"DataType\": \"test_data\", \"Content\": \"data to store for fd633986-2d51-4536-af6c-f0764635f335\"}",
     "resource": "/{proxy+}",
     "path": "/path/to/resource",
     "httpMethod": "POST",

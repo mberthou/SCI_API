@@ -20,7 +20,7 @@ def test_get_products(lambda_environment, mock_dynamodb):
             "MeasurementId" : "measurement1",
             "SubsampleId" : "None",
             "DataType" : "GenericSample",
-            "Data" : { "Vf" : Decimal('3.2'), "Ir" : Decimal('1e-6') }
+            "Content" : { "Vf" : Decimal('3.2'), "Ir" : Decimal('1e-6') }
         }
         post_generic_sample_data(app_config, db_table, generic_sample_data_1)
 
@@ -31,7 +31,7 @@ def test_get_products(lambda_environment, mock_dynamodb):
             "MeasurementId" : "measurement1",
             "SubsampleId" : "None",
             "DataType" : "GenericSample",
-            "Data" : { "Vf" : Decimal('3.2'), "Ir" : Decimal('1e-6') }
+            "Content" : { "Vf" : Decimal('3.2'), "Ir" : Decimal('1e-6') }
         }
         post_generic_sample_data(app_config, db_table, generic_sample_data_2)
 
@@ -42,7 +42,7 @@ def test_get_products(lambda_environment, mock_dynamodb):
             "MeasurementId" : "measurement1",
             "SubsampleId" : "None",
             "DataType" : "GenericSample",
-            "Data" : { "Vf" : Decimal('3.2'), "Ir" : Decimal('1e-6') }
+            "Content" : { "Vf" : Decimal('3.2'), "Ir" : Decimal('1e-6') }
         }
         post_generic_sample_data(app_config, db_table, generic_sample_data_3)
 
@@ -53,7 +53,7 @@ def test_get_products(lambda_environment, mock_dynamodb):
             "MeasurementId" : "measurement1",
             "SubsampleId" : "None",
             "DataType" : "GenericSample",
-            "Data" : { "Vf" : Decimal('3.2'), "Ir" : Decimal('1e-6') }
+            "Content" : { "Vf" : Decimal('3.2'), "Ir" : Decimal('1e-6') }
         }
         post_generic_sample_data(app_config, db_table, generic_sample_data_4)
         

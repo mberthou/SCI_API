@@ -14,7 +14,7 @@ SiteX : str
 SiteY : str
 DataType: "Site"
 IsSelected: bool
-Data : {"NoSubs" : int }
+Content : {"NoSubs" : int }
 
 subsites data posted in different rows, see _post_subsite_in_db
 
@@ -42,14 +42,14 @@ def _post_api_site_to_db(
         "ProductId" : product_id_in,
         "SubsampleId" : f"X{site_x}Y{site_y}",
         "DataType" : "Site",        
-        "Data" : site_data_in | {                
+        "Content" : site_data_in | {                
             "SiteX" : site_x,
             "SiteY" : site_y
         }
     }
 
     if app_config["subsite_separate_storage"]:
-        site_item["Data"].pop("subsites")
+        site_item["Content"].pop("subsites")
         
 
     db_table_in.put_item(Item=site_item)
@@ -70,10 +70,10 @@ def _post_api_site_to_db(
     return site_item["Id"]
 
 def __convert_db_site_to_api(app_config, db_site_item:Dict, db_subsite_items: List[Dict]) -> Dict:
-    api_site_data = copy.deepcopy(db_site_item["Data"]) # json.loads(db_site_item["Data"],parse_float=Decimal, parse_int=int)
+    api_site_data = copy.deepcopy(db_site_item["Content"]) # json.loads(db_site_item["Content"],parse_float=Decimal, parse_int=int)
     
     # this block is used when storing subsites in different block
-    if app_config["subsite_separate_storage"]:
+    if db_subsite_items:
         api_site_data["subsites"] = [_convert_db_to_api_subsite(db_subsite) for db_subsite in db_subsite_items]
     
     return api_site_data
@@ -85,6 +85,7 @@ def _get_db_sites(
 ):
     results = db_table_in.query(
         IndexName="ParentIdx",
+        ProjectionExpression = "Id, SampleId, ParentId, Content, DataType, SubsampleId",
         KeyConditionExpression=(
             Key("SampleId").eq(sample_id_in) &
             Key("ParentId").eq(parent_row_id_in)

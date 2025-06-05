@@ -1,4 +1,4 @@
-from fixtures import lambda_environment, mock_dynamodb, aws_credentials
+from tests.unit.fixtures import lambda_environment, mock_dynamodb, aws_credentials
 from src.app.app import lambda_handler
 
 def test_post_data(lambda_environment, mock_dynamodb):

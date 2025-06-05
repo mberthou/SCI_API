@@ -15,7 +15,7 @@ def _convert_db_to_api_subsite(db_subsite_in:Dict[str,Any]):
     #     raise RuntimeError("Subsite name is not properly built in subsite data block")
 
     # api_subsite_item["name"] = m.group(1)
-    return copy.deepcopy(db_subsite_in["Data"])
+    return copy.deepcopy(db_subsite_in["Content"])
 
 def _convert_api_to_db_subsite(
         parent_id_in:str,
@@ -34,7 +34,7 @@ def _convert_api_to_db_subsite(
         "ProductId" : product_in,
         "SubsampleId" : f"X{site_x_in}Y{site_y_in}_{subsite_name}",
         "DataType" : "Subsite",
-        "Data" : copy.deepcopy(api_subsite_in)
+        "Content" : copy.deepcopy(api_subsite_in)
     }
 
 '''return Id of posted subsite'''
@@ -64,6 +64,7 @@ def __get_db_subsites_items(
         parent_id_in: str):
     results = db_table_in.query(
         IndexName="ParentIdx",
+        ProjectionExpression = "Id, SampleId, ParentId, Content, DataType, SubsampleId",
         KeyConditionExpression=(
             Key("SampleId").eq(sample_id_in) &
             Key("ParentId").eq(parent_id_in)

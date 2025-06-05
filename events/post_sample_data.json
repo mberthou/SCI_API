@@ -54,6 +54,6 @@
       "timeEpoch": 1583348638390
     },
     "httpMethod" : "POST",
-    "body": "{\"Id\" : \"209e5217-5dee-45e2-ad91-5a18dc257308\",\"Sample\" : \"ABC19238\",\"Data\" : \"{'Vf' : '3.2', 'Ir' : '400'}\"}",
+    "body": "{\"Id\" : \"209e5217-5dee-45e2-ad91-5a18dc257308\",\"Sample\" : \"ABC19238\",\"Content\" : \"{'Vf' : '3.2', 'Ir' : '400'}\"}",
     "isBase64Encoded": true
   }
