@@ -1,6 +1,6 @@
-from ..helpers.api import build_failure_response, build_success_response
+from ..helpers.api import build_failure_response, build_success_response, assert_query_string_parameters
 from ..helpers.mapping.subsite import __get_db_subsites_items, _post_subsite_in_db
-from ..helpers.mapping.mapping import post_mapping
+from ..helpers.mapping.mapping import post_mapping, get_mapping
 from decimal import Decimal
 from typing import Dict, Any
 import logging
@@ -9,8 +9,26 @@ import json
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
-def on_get_full_mapping(app_config_in: Dict[str,Any], event_in, context, db_table):
-    return None
+def on_get_full_mapping(app_config_in: Dict[str,Any], event_in, context, db_table_in):
+    # try:
+        # assert_query_string_parameters(event_in, ["sample_id","id"])
+    if 'queryStringParameters' not in event_in:
+        return build_failure_response("queryStringParameters not defined")
+
+    if 'sample_id' not in event_in['queryStringParameters']:
+        return build_failure_response("sample_id not defined in queryStringParameters")
+    
+    if 'id' not in event_in['queryStringParameters']:
+        return build_failure_response("id not defined in queryStringParameters") 
+    
+    mapping = get_mapping(
+        app_config_in,
+        db_table_in,
+        event_in["queryStringParameters"]["sample_id"],
+        event_in["queryStringParameters"]["id"])
+    return build_success_response(mapping)
+    # except KeyError as e:
+    #     return build_failure_response(e.args)
 
 def on_get_mapping_info(app_config_in: Dict[str,Any], event_in, context, db_table):
     return None
@@ -86,7 +104,7 @@ def on_post_mapping_data(app_config_in: Dict[str,Any], event_in, context, db_tab
     logger.info(f"adding mapping item : '{event_in['body']}'")
     api_mapping = json.loads(event_in['body'], parse_float=Decimal)
     
-    expected_keys = ["SampleId", "ProductId", "MeasurementId", "Data"]
+    expected_keys = ["SampleId", "ProductId", "MeasurementId", "Content"]
     
     key_extra_errors = [ f"unexpected key '{key}' in posted item" for key in api_mapping if key not in expected_keys]
     key_missing_errors = [ f"missing key '{key}' in posted item" for key in expected_keys if key not in api_mapping ]
