@@ -2,7 +2,7 @@ from tests.unit.fixtures import lambda_environment, mock_dynamodb, aws_credentia
 from src.app.app import lambda_handler
 
 def test_post_data(lambda_environment, mock_dynamodb):
-    with open("tests/payloads/post_payload.json") as payload_file:
+    with open("payloads/post_payload.json") as payload_file:
         event = {
             "path" : "/data",
             "httpMethod" : "POST",
@@ -13,7 +13,7 @@ def test_post_data(lambda_environment, mock_dynamodb):
         assert response["statusCode"] == '200'
 
 def test_post_mapping_data(lambda_environment, mock_dynamodb):
-    with open("tests/payloads/mapping1_payload.json") as mapping1_payload_file:
+    with open("payloads/mapping1_payload.json") as mapping1_payload_file:
         post_event = {
             "path" : "/data/mapping/full",
             "httpMethod" : "POST",

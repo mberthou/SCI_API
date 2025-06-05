@@ -6,7 +6,7 @@ import json
 from boto3.dynamodb.conditions import Key
 import os
 
-os.chdir(os.path.dirname(__file__))
+# os.chdir(os.path.dirname(__file__))
 subsite_separate_storage = False
 
 def test_post_mapping(lambda_environment, mock_dynamodb):
