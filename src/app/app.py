@@ -18,7 +18,6 @@ from .handlers.mapping import (
     on_get_mapping_by_sample,
 )
 from .encoders.custom_encoder import CustomEncoder
-from codeguru_profiler_agent import with_lambda_profiler
 
 
 logger = logging.getLogger()
@@ -90,8 +89,6 @@ def _get_table():
             raise SystemError("DynamoDb SCIDATA_TABLE_NAME not defined in environement variables")  
         return boto3.resource('dynamodb').Table(db_table_name)
 
-
-@with_lambda_profiler(profiling_group_name="SciData-profiling")
 def lambda_handler(event_in, context_in):
     db_table = _get_table()
 
