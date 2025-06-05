@@ -1,11 +1,10 @@
 version = 0.1
-
-[default.global.parameters]
-stack_name = "SCI_API"
+[default.deploy.parameters]
+stack_name = "SciData"
+resolve_s3 = true
+s3_prefix = "SciData"
 region = "eu-west-1"
-
-[default.sync.parameters]
-template_file = "template.yaml"
-dependency_layer = false
-use_container = true
-watch = true
+confirm_changeset = true
+capabilities = "CAPABILITY_IAM"
+disable_rollback = true
+image_repositories = []
