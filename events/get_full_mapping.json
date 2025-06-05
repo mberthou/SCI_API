@@ -1,0 +1,9 @@
+{
+    "path":"/data/mapping/full",
+    "httpMethod":"GET",
+    "queryStringParameters": {
+        "sample_id":"sample_3c3f2566f0b4",
+        "id":"716d2a02-dd76-4673-829c-ed7009c27cdc"
+    }
+}
+    
