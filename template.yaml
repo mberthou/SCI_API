@@ -16,6 +16,7 @@ Resources:
         Variables:
           SCIDATA_TABLE_NAME: !Ref SciData
           SCIDATA_TABLE_ARN: !GetAtt SciData.Arn
+          AWS_CODEGURU_PROFILER_GROUP_NAME: SciDataProfilingGroup
       Policies:
         - DynamoDBCrudPolicy:
             TableName: !Ref SciData
