@@ -10,6 +10,7 @@ logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
 def on_get_full_mapping(app_config_in: Dict[str,Any], event_in, context, db_table_in):
+    logger.info(f"getting full mapping for {event_in['queryStringParameters']}")
     # try:
         # assert_query_string_parameters(event_in, ["sample_id","id"])
     if 'queryStringParameters' not in event_in:
@@ -101,7 +102,7 @@ def on_post_mapping_site_data(app_config_in: Dict[str,Any], event_in, context, d
 
 
 def on_post_mapping_data(app_config_in: Dict[str,Any], event_in, context, db_table_in):
-    logger.info(f"adding mapping item : '{event_in['body']}'")
+    logger.info(f"posting mapping data")
     api_mapping = json.loads(event_in['body'], parse_float=Decimal)
     
     expected_keys = ["SampleId", "ProductId", "MeasurementId", "Content"]

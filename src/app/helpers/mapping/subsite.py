@@ -2,6 +2,9 @@ from typing import Any, Dict
 from boto3.dynamodb.conditions import And, Attr, Key
 import uuid
 import copy
+import logging
+
+logger = logging.getLogger()
 
 def _convert_db_to_api_subsite(db_subsite_in:Dict[str,Any]):
     # api_subsite_item = {
@@ -47,6 +50,7 @@ def _post_subsite_in_db(
         site_x_in: int,
         site_y_in: int,
         api_subsite_in: Dict) -> Dict:
+    logger.info("_post_subsite_in_db")
     db_subsite_data = _convert_api_to_db_subsite(
         parent_id_in,
         sample_in,
@@ -62,6 +66,7 @@ def __get_db_subsites_items(
         db_table_in,
         sample_id_in: str,
         parent_id_in: str):
+    logger.info("__get_db_subsites_items")
     results = db_table_in.query(
         IndexName="ParentIdx",
         ProjectionExpression = "Id, SampleId, ParentId, Content, DataType, SubsampleId",

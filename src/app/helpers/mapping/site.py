@@ -3,6 +3,9 @@ from boto3.dynamodb.conditions import Key
 import uuid
 import copy
 from .subsite import _post_subsite_in_db, __get_db_subsites_items, _convert_db_to_api_subsite
+import logging
+
+logger = logging.getLogger()
 
 """ posting site and subsites data in db
 
@@ -50,7 +53,6 @@ def _post_api_site_to_db(
 
     if app_config["subsite_separate_storage"]:
         site_item["Content"].pop("subsites")
-        
 
     db_table_in.put_item(Item=site_item)
     
