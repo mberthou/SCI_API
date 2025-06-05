@@ -9,8 +9,8 @@ Resources:
       CodeUri: src
       Handler: app.app.lambda_handler
       Runtime: python3.9
-      MemorySize: 128
-      Timeout: 10
+      MemorySize: 256
+      Timeout: 20
       Tracing: Active
       Environment:
         Variables:
