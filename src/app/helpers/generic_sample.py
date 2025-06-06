@@ -16,3 +16,14 @@ def post_generic_sample_data(app_config_in: AppConfig, db_table, sample_data_in:
         
     sample_data_in["Id"] = str(uuid.uuid4())
     return db_table.put_item(Item=sample_data_in)
+
+"""
+return number of element deleted
+"""
+def delete_all(app_config_in: AppConfig, db_table) -> int:
+    scan_result = db_table.scan(ProjectionExpression="Id,SampleId")
+    with db_table.batch_writer() as batch:
+        for item in scan_result["Items"]:
+            batch.delete_item(Key=item)
+    
+    return scan_result["Count"]

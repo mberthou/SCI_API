@@ -7,6 +7,7 @@ from decimal import Decimal
 from ..encoders.custom_encoder import CustomEncoder
 import json
 from ..app_config import AppConfig
+from ..helpers.generic_sample import delete_all
 
 logger = logging.getLogger()
 
@@ -61,3 +62,10 @@ def on_get_data(app_config_in: AppConfig, event_in, context, db_table):
 def on_post_data(app_config_in: AppConfig, event_in, context, db_table):    
     result = post_item(db_table, event_in['body'])
     return build_success_response(result)
+
+def on_delete_all(app_config_in: AppConfig, event_in, context, db_table):
+    no_deleted_rows = delete_all(app_config_in, db_table)
+    logger.info(f"on_delete_all: {no_deleted_rows} rows deleted")
+    return build_success_response(
+        f"Successfully deleted {no_deleted_rows} rows"
+    )

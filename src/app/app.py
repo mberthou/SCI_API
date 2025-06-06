@@ -18,9 +18,9 @@ from .handlers.mapping import (
 )
 from .handlers.generic_sample import (
     on_get_data,
-    on_post_data
+    on_post_data,
+    on_delete_all,
 )
-from codeguru_profiler_agent import with_lambda_profiler
 from .app_config import AppConfig
 
 logger = logging.getLogger()
@@ -40,7 +40,6 @@ def _get_table():
         return boto3.resource('dynamodb').Table(db_table_name)
 
 
-@with_lambda_profiler()
 def lambda_handler(event_in, context_in):
     logging.getLogger('codeguru_profiler_agent').setLevel(logging.INFO)
 
@@ -50,6 +49,9 @@ def lambda_handler(event_in, context_in):
         "/data" : {
             "GET" : on_get_data,
             "POST": on_post_data
+        },
+        "/data/all" : {
+            "DELETE" : on_delete_all
         },
         "/data/mapping/info" : {
             "GET" : on_get_mapping_info,

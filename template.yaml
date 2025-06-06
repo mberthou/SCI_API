@@ -33,6 +33,12 @@ Resources:
             Path: /data
             Method: GET
             RestApiId: !Ref SciApi
+        SciApiDeletedataall:
+          Type: Api
+          Properties:
+            Path: /data/all
+            Method: DELETE
+            RestApiId: !Ref SciApi
         SciApiPOSTdatamappingfull:
           Type: Api
           Properties:
@@ -69,6 +75,13 @@ Resources:
                 uri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${SciBackend.Arn}/invocations
               responses: {}
             get:
+              x-amazon-apigateway-integration:
+                httpMethod: POST
+                type: aws_proxy
+                uri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${SciBackend.Arn}/invocations
+              responses: {}
+          /data/all:
+            delete:
               x-amazon-apigateway-integration:
                 httpMethod: POST
                 type: aws_proxy
