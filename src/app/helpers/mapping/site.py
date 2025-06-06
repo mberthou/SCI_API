@@ -29,7 +29,7 @@ return Id of posted site
 """
 def _post_api_site_to_db(
         app_config_in: AppConfig,
-        db_table_in,
+        db_batch_in,
         parent_id_in: str,
         sample_id_in: str,
         measurement_id_in: str,
@@ -53,14 +53,14 @@ def _post_api_site_to_db(
         site_y, 
         site_data_in)
 
-    db_table_in.put_item(Item=site_db_item)
+    db_batch_in.put_item(Item=site_db_item)
     
     # this block is used when storing subsites in different block
     if app_config_in.subsite_separate_storage:
         for subsite_data in site_data_in["subsites"]:
             _post_subsite_in_db(
                 app_config_in,
-                db_table_in,
+                db_batch_in,
                 site_row_id,
                 sample_id_in,
                 measurement_id_in,
@@ -82,11 +82,10 @@ def __convert_api_site_to_db(
         site_x_in: int,
         site_y_in: int,
         site_data_in: Dict) -> Dict[str,Any]:
-
     data_content = {                
             "SiteX" : site_x_in,
             "SiteY" : site_y_in
-        } | copy.deepcopy(site_data_in)
+        } | site_data_in
     
     if app_config_in.subsite_separate_storage:
         data_content.pop("subsites")

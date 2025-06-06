@@ -56,7 +56,6 @@ def test_post_mapping_subsites_separate_storage(lambda_environment, mock_dynamod
         
         assert result["Count"] == 1701
 
-
 def test_get_mapping(lambda_environment, mock_dynamodb):
     app_config = AppConfig(subsite_separate_storage=False, content_format="dict")
     with open("test_data/test_post_mapping.json") as f:
@@ -66,7 +65,7 @@ def test_get_mapping(lambda_environment, mock_dynamodb):
         api_mapping_posted["MeasurementId"] = "test_get_mapping_1_measurement" 
 
         db_table = _get_table()
-        row_id = post_mapping( app_config, db_table, api_mapping_posted)
+        sample_id, row_id = post_mapping( app_config, db_table, api_mapping_posted)
 
         api_mapping = get_mapping(app_config, db_table, api_mapping_posted["SampleId"], row_id)
 
@@ -84,7 +83,7 @@ def test_get_mapping_with_content_as_string(lambda_environment, mock_dynamodb):
         api_mapping_posted["MeasurementId"] = "test_get_mapping_1_measurement" 
 
         db_table = _get_table()
-        row_id = post_mapping( app_config, db_table, api_mapping_posted)
+        sample_id, row_id = post_mapping( app_config, db_table, api_mapping_posted)
 
         api_mapping = get_mapping(app_config, db_table, api_mapping_posted["SampleId"], row_id)
 

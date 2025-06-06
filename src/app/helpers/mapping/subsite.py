@@ -57,7 +57,7 @@ def _convert_api_to_db_subsite(
 '''return Id of posted subsite'''
 def _post_subsite_in_db(
         app_config_in: AppConfig,
-        db_table_in,
+        db_batch_in,
         parent_id_in: str,
         sample_id_in: str,
         measurement_id_in: str,
@@ -75,7 +75,7 @@ def _post_subsite_in_db(
         site_x_in,
         site_y_in,
         api_subsite_in)
-    db_table_in.put_item(Item=db_subsite_data)
+    db_batch_in.put_item(Item=db_subsite_data)
     return db_subsite_data["Id"]
 
 def __get_db_subsites_items(

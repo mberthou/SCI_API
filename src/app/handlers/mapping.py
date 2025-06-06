@@ -118,5 +118,5 @@ def on_post_mapping_data(app_config_in: AppConfig, event_in, context, db_table_i
     api_mapping["DataType"] = "MappingData"
     api_mapping["ParentId"] = "None"
     api_mapping["SubsampleId"] = "None"
-    mapping_id = post_mapping(app_config_in, db_table_in, api_mapping)
-    return build_success_response(f"successfully posted mapping with id {mapping_id}")
+    sample_id, mapping_id = post_mapping(app_config_in, db_table_in, api_mapping)
+    return build_success_response(f"successfully posted mapping with id {sample_id};{mapping_id}")
