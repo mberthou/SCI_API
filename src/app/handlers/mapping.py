@@ -5,11 +5,12 @@ from decimal import Decimal
 from typing import Dict, Any
 import logging
 import json
+from ..app_config import AppConfig
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
-def on_get_full_mapping(app_config_in: Dict[str,Any], event_in, context, db_table_in):
+def on_get_full_mapping(app_config_in: AppConfig, event_in, context, db_table_in):
     logger.info(f"getting full mapping for {event_in['queryStringParameters']}")
     # try:
         # assert_query_string_parameters(event_in, ["sample_id","id"])
@@ -31,10 +32,10 @@ def on_get_full_mapping(app_config_in: Dict[str,Any], event_in, context, db_tabl
     # except KeyError as e:
     #     return build_failure_response(e.args)
 
-def on_get_mapping_info(app_config_in: Dict[str,Any], event_in, context, db_table):
+def on_get_mapping_info(app_config_in: AppConfig, event_in, context, db_table):
     return None
 
-def on_get_mapping_info_by_measurement_id(app_config_in: Dict[str,Any], event_in, context, db_table_in):
+def on_get_mapping_info_by_measurement_id(app_config_in: AppConfig, event_in, context, db_table_in):
     if 'queryStringParameters' not in event_in:
         return build_failure_response("queryStringParameters not defined")
 
@@ -49,7 +50,7 @@ def on_get_mapping_info_by_measurement_id(app_config_in: Dict[str,Any], event_in
     result = None # __get_db_map_items_by_measurement_id(db_table_in, sample_id, measurement_id)
     return build_success_response(result["Items"])
 
-def on_get_mapping_site_data(app_config_in: Dict[str,Any], event_in, context, db_table):
+def on_get_mapping_site_data(app_config_in: AppConfig, event_in, context, db_table):
     if 'queryStringParameters' not in event_in:
         return build_failure_response("queryStringParameters not defined")
     
@@ -74,34 +75,35 @@ def on_get_mapping_site_data(app_config_in: Dict[str,Any], event_in, context, db
     
     return build_success_response(result["Items"])
 
-def on_get_mapping_subsite_data(app_config_in: Dict[str,Any], event_in, context, db_table_in):
+def on_get_mapping_subsite_data(app_config_in: AppConfig, event_in, context, db_table_in):
     parent_id = event_in['queryStringParameters']['parent_id']
     sample_id = event_in['queryStringParameters']['sample_id']
     result = __get_db_subsites_items(db_table_in,sample_id, parent_id)
     return build_success_response(result["Items"])
 
-def on_post_mapping_subsite_data(app_config_in: Dict[str,Any], event_in, context, db_table_in):
+def on_post_mapping_subsite_data(app_config_in: AppConfig, event_in, context, db_table_in):
     query_string_parameters = event_in['queryStringParameters']
     subsite_data = json.loads(event_in['body'], parse_float=Decimal, parse_int=int)
     result = _post_subsite_in_db(
-        db_table_in,
-        query_string_parameters['parent_id'],
-        query_string_parameters['sample_id'],
-        query_string_parameters['measurement_id'],
-        query_string_parameters['product_id'],
-        query_string_parameters['site_x'],
-        query_string_parameters['site_y'],
-        subsite_data)
+        app_config_in = app_config_in,
+        db_table_in = db_table_in,
+        parent_id_in=query_string_parameters['parent_id'],
+        sample_id_in=query_string_parameters['sample_id'],
+        measurement_id_in=query_string_parameters['measurement_id'],
+        product_id_in=query_string_parameters['product_id'],
+        site_x_in=query_string_parameters['site_x'],
+        site_y_in=query_string_parameters['site_y'],
+        api_subsite_in=subsite_data)
     return build_success_response(result)
 
-def on_get_mapping_by_sample(app_config_in: Dict[str,Any], event_in, context, db_table):
+def on_get_mapping_by_sample(app_config_in: AppConfig, event_in, context, db_table):
     return None
 
-def on_post_mapping_site_data(app_config_in: Dict[str,Any], event_in, context, db_table):
+def on_post_mapping_site_data(app_config_in: AppConfig, event_in, context, db_table):
     return None
 
 
-def on_post_mapping_data(app_config_in: Dict[str,Any], event_in, context, db_table_in):
+def on_post_mapping_data(app_config_in: AppConfig, event_in, context, db_table_in):
     logger.info(f"posting mapping data")
     api_mapping = json.loads(event_in['body'], parse_float=Decimal)
     

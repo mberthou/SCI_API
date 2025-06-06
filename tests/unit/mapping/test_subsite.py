@@ -10,9 +10,11 @@ import json
 from src.app.encoders.custom_encoder import CustomEncoder
 import uuid
 from boto3.dynamodb.conditions import Attr
+from src.app.app_config import AppConfig
 
 
 def test_convert_subsite():
+    app_config = AppConfig(False, "dict")
     api_subsite_data = {
         "name" : "test_subsite",
         "Vf" : Decimal("3.2"),
@@ -20,6 +22,7 @@ def test_convert_subsite():
     }
     parent_id = str(uuid.uuid4())
     db_subsite_data = _convert_api_to_db_subsite(
+        app_config,
         parent_id,
         "sample_test",
         str(uuid.uuid4()),
@@ -29,12 +32,14 @@ def test_convert_subsite():
         api_subsite_data)
     
     api_subsite_data_back = _convert_db_to_api_subsite(
+        app_config,
         db_subsite_data
     )
 
     assert api_subsite_data == api_subsite_data_back
     
 def test_post_subsite_in_db(lambda_environment, mock_dynamodb):
+    app_config = AppConfig(False, "dict")
     api_subsite_data = {
         "name" : "test_post_subsite_in_db_subsite",
         "Vf" : Decimal("3.2"),
@@ -46,11 +51,12 @@ def test_post_subsite_in_db(lambda_environment, mock_dynamodb):
     product_id = "test_post_subsite_in_db_product"
     measurement_id=str(uuid.uuid4())
     _post_subsite_in_db(
+        app_config_in = app_config,
         db_table_in = _get_table(),
         parent_id_in = parent_id,      
-        sample_in= sample_id,
+        sample_id_in= sample_id,
         measurement_id_in=measurement_id,
-        product_in = product_id,
+        product_id_in = product_id,
         site_x_in = "4",
         site_y_in = "6",
         api_subsite_in = api_subsite_data)
@@ -68,6 +74,7 @@ def test_post_subsite_in_db(lambda_environment, mock_dynamodb):
 
 def test_get_subsite(lambda_environment, mock_dynamodb):
     prefix = "test_get_subsite"
+    app_config = AppConfig(False, "dict")
     api_subsite_data = {
         "name" : f"{prefix}_name",
         "Vf" : Decimal("3.2"),
@@ -80,11 +87,12 @@ def test_get_subsite(lambda_environment, mock_dynamodb):
     measurement_id=str(uuid.uuid4())
     db_table = _get_table()
     _post_subsite_in_db(
+        app_config,
         db_table_in = db_table,
         parent_id_in = parent_id,      
-        sample_in= sample_id,
+        sample_id_in= sample_id,
         measurement_id_in=measurement_id,
-        product_in = product_id,
+        product_id_in = product_id,
         site_x_in = "4",
         site_y_in = "6",
         api_subsite_in = api_subsite_data)

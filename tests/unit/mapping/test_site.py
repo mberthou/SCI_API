@@ -8,10 +8,11 @@ from boto3.dynamodb.conditions import And, Attr, Key
 from functools import reduce
 import deepdiff
 import uuid
+from src.app.app_config import AppConfig
 
 
 def test_post_site(lambda_environment: None, mock_dynamodb: DynamoDBClient):
-    app_config = {"subsite_separate_storage":False}
+    app_config = AppConfig(False, "dict")
     db_table = _get_table()
     api_site_data = {
         "name" : "test_post_site_1",
@@ -61,7 +62,7 @@ def test_post_site(lambda_environment: None, mock_dynamodb: DynamoDBClient):
                 Attr("MeasurementId").eq(measurement_id),
                 Attr("DataType").eq("Subsite")]))
 
-    assert results["Count"] == (2 if app_config["subsite_separate_storage"] else 0)
+    assert results["Count"] == (2 if app_config.subsite_separate_storage else 0)
 
     results = db_table.query(
         IndexName="SubsampleIdx",
@@ -73,7 +74,7 @@ def test_post_site(lambda_environment: None, mock_dynamodb: DynamoDBClient):
 
 
 def test_get_site(lambda_environment: None, mock_dynamodb: DynamoDBClient):
-    app_config = {"subsite_separate_storage":False}
+    app_config = AppConfig(False, "dict")
     prefix = "test_get_site"
     db_table = _get_table()
     api_site_data = {

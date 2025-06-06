@@ -2,6 +2,7 @@ from ast import Dict
 from .site import _get_api_sites_from_db, _post_api_site_to_db
 import uuid
 import logging
+from ...app_config import AppConfig
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
@@ -9,7 +10,7 @@ logger.setLevel(logging.INFO)
 """
 returns: new mapping's row Id (primary key is composed of Id and SampleId)
 """
-def post_mapping(app_config, db_table_in, item_in: Dict) -> str:
+def post_mapping(app_config: AppConfig, db_table_in, item_in: Dict) -> str:
     logger.info(f"posting mapping with SId {item_in['SampleId']}, MId {item_in['MeasurementId']}, PId: {item_in['ProductId']}")
     mapping_item = {
         "Id" : str(uuid.uuid4()),
@@ -41,7 +42,7 @@ def post_mapping(app_config, db_table_in, item_in: Dict) -> str:
     return mapping_item["Id"]
             
 
-def get_mapping(app_config, db_table_in, sample_id_in: str, row_id_in: str) -> Dict:
+def get_mapping(app_config: AppConfig, db_table_in, sample_id_in: str, row_id_in: str) -> Dict:
     logger.info(f"get mapping {sample_id_in};{row_id_in}")
     response = db_table_in.get_item(Key={'Id':row_id_in, 'SampleId': sample_id_in})
     

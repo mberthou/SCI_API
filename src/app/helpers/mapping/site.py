@@ -4,6 +4,10 @@ import uuid
 import copy
 from .subsite import _post_subsite_in_db, __get_db_subsites_items, _convert_db_to_api_subsite
 import logging
+import json
+from decimal import Decimal
+from ...app_config import AppConfig
+from ...encoders.custom_encoder import CustomEncoder
 
 logger = logging.getLogger()
 
@@ -24,7 +28,7 @@ subsites data posted in different rows, see _post_subsite_in_db
 return Id of posted site
 """
 def _post_api_site_to_db(
-        app_config: Dict,
+        app_config_in: AppConfig,
         db_table_in,
         parent_id_in: str,
         sample_id_in: str,
@@ -35,33 +39,29 @@ def _post_api_site_to_db(
         col: int,
         row: int,
         site_data_in: Dict) -> str:
+    site_row_id = str(uuid.uuid4())
     site_x = site_x0_in + col
     site_y = site_y0_in + row
-    site_item = {
-        "Id" : str(uuid.uuid4()),
-        "ParentId" : parent_id_in,
-        "SampleId" : sample_id_in,
-        "MeasurementId" : measurement_id_in,
-        "ProductId" : product_id_in,
-        "SubsampleId" : f"X{site_x}Y{site_y}",
-        "DataType" : "Site",        
-        "Content" : site_data_in | {                
-            "SiteX" : site_x,
-            "SiteY" : site_y
-        }
-    }
+    site_db_item = __convert_api_site_to_db(
+        app_config_in,
+        site_row_id,
+        parent_id_in,
+        sample_id_in,
+        measurement_id_in,
+        product_id_in,
+        site_x,
+        site_y, 
+        site_data_in)
 
-    if app_config["subsite_separate_storage"]:
-        site_item["Content"].pop("subsites")
-
-    db_table_in.put_item(Item=site_item)
+    db_table_in.put_item(Item=site_db_item)
     
     # this block is used when storing subsites in different block
-    if app_config["subsite_separate_storage"]:
+    if app_config_in.subsite_separate_storage:
         for subsite_data in site_data_in["subsites"]:
             _post_subsite_in_db(
+                app_config_in,
                 db_table_in,
-                site_item["Id"],
+                site_row_id,
                 sample_id_in,
                 measurement_id_in,
                 product_id_in,
@@ -69,16 +69,58 @@ def _post_api_site_to_db(
                 site_y,
                 subsite_data)
         
-    return site_item["Id"]
+    return site_row_id
 
-def __convert_db_site_to_api(app_config, db_site_item:Dict, db_subsite_items: List[Dict]) -> Dict:
-    api_site_data = copy.deepcopy(db_site_item["Content"]) # json.loads(db_site_item["Content"],parse_float=Decimal, parse_int=int)
+
+def __convert_api_site_to_db(
+        app_config_in: AppConfig,
+        id_in: str,
+        parent_id_in: str,
+        sample_id_in: str,
+        measurement_id_in: str,
+        product_id_in: str,
+        site_x_in: int,
+        site_y_in: int,
+        site_data_in: Dict) -> Dict[str,Any]:
+
+    data_content = {                
+            "SiteX" : site_x_in,
+            "SiteY" : site_y_in
+        } | copy.deepcopy(site_data_in)
+    
+    if app_config_in.subsite_separate_storage:
+        data_content.pop("subsites")
+
+    if app_config_in.content_format == "string":
+        data_content = json.dumps(data_content, cls=CustomEncoder)
+
+    return {
+        "Id" : id_in,
+        "ParentId" : parent_id_in,
+        "SampleId" : sample_id_in,
+        "MeasurementId" : measurement_id_in,
+        "ProductId" : product_id_in,
+        "SubsampleId" : f"X{site_x_in}Y{site_y_in}",
+        "DataType" : "Site",   
+        "Content" : data_content
+    }
+
+
+def __convert_db_site_to_api(app_config_in: AppConfig, db_site_item:Dict, db_subsite_items: List[Dict]) -> Dict:
+    if app_config_in.content_format == "string":
+        api_site_content = json.loads(db_site_item["Content"], parse_float=Decimal, parse_int=int)
+    else:
+        api_site_content = copy.deepcopy(db_site_item["Content"])
     
     # this block is used when storing subsites in different block
     if db_subsite_items:
-        api_site_data["subsites"] = [_convert_db_to_api_subsite(db_subsite) for db_subsite in db_subsite_items]
+        api_site_content["subsites"] = [
+            _convert_db_to_api_subsite(app_config_in, db_subsite) 
+            for db_subsite in db_subsite_items
+        ]
     
-    return api_site_data
+    return api_site_content
+
 
 def _get_db_sites(
         db_table_in,
@@ -114,28 +156,34 @@ def __get_db_site_item(
 
     return results["Items"][0]
 
+
 def __build_api_site(
-        app_config,
+        app_config_in: AppConfig,
         db_table_in,
         sample_id_in: str,
         db_site_item: Dict[str,Any]):
-    db_subsites = __get_db_subsites_items(
-        db_table_in,
-        sample_id_in,
-        db_site_item["Id"]) if app_config["subsite_separate_storage"] else None
+    db_subsites = None
+    if app_config_in.subsite_separate_storage:
+        db_subsites = __get_db_subsites_items(
+            db_table_in,
+            sample_id_in,
+            db_site_item["Id"])
+        
     return __convert_db_site_to_api(
-        app_config,
+        app_config_in,
         db_site_item, 
         db_subsites)
 
+
 def _get_api_sites_from_db(
-        app_config,
+        app_config_in: AppConfig,
         db_table_in,
         sample_id_in: str,
         parent_row_id: str):    
     db_sites = _get_db_sites(db_table_in, sample_id_in, parent_row_id)
+    
     return [
-        __build_api_site(app_config, db_table_in, sample_id_in, db_site_item)
+        __build_api_site(app_config_in, db_table_in, sample_id_in, db_site_item)
         for db_site_item in db_sites
     ]
 

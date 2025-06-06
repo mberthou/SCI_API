@@ -3,10 +3,15 @@ from boto3.dynamodb.conditions import And, Attr, Key
 import uuid
 import copy
 import logging
+import json
+from decimal import Decimal
+
+from ...helpers.api import CustomEncoder
+from ...app_config import AppConfig
 
 logger = logging.getLogger()
 
-def _convert_db_to_api_subsite(db_subsite_in:Dict[str,Any]):
+def _convert_db_to_api_subsite(app_config_in: AppConfig, db_subsite_in:Dict[str,Any]):
     # api_subsite_item = {
     #     key[10:]:value
     #     for key,value in db_subsite_in.items()
@@ -18,9 +23,14 @@ def _convert_db_to_api_subsite(db_subsite_in:Dict[str,Any]):
     #     raise RuntimeError("Subsite name is not properly built in subsite data block")
 
     # api_subsite_item["name"] = m.group(1)
+    api_subsite = copy.deepcopy(db_subsite_in["Content"])
+    if app_config_in.content_format == "string":
+        api_subsite["Content"] = json.loads(api_subsite["Content"], parse_float=Decimal, parse_int=int)
+
     return copy.deepcopy(db_subsite_in["Content"])
 
 def _convert_api_to_db_subsite(
+        app_config_in: AppConfig,
         parent_id_in:str,
         sample_id_in: str,
         measurement_id_in: str,
@@ -29,6 +39,10 @@ def _convert_api_to_db_subsite(
         site_y_in: int,
         api_subsite_in: dict[str, Any]):
     subsite_name = api_subsite_in["name"]
+    content = copy.deepcopy(api_subsite_in)
+    if app_config_in.content_format == "string":
+        content = json.dumps(content, cls=CustomEncoder)
+
     return {
         "ParentId" : parent_id_in,
         "Id" : str(uuid.uuid4()),
@@ -37,25 +51,27 @@ def _convert_api_to_db_subsite(
         "ProductId" : product_in,
         "SubsampleId" : f"X{site_x_in}Y{site_y_in}_{subsite_name}",
         "DataType" : "Subsite",
-        "Content" : copy.deepcopy(api_subsite_in)
+        "Content" : content
     }
 
 '''return Id of posted subsite'''
 def _post_subsite_in_db(
+        app_config_in: AppConfig,
         db_table_in,
         parent_id_in: str,
-        sample_in: str,
+        sample_id_in: str,
         measurement_id_in: str,
-        product_in: str,
+        product_id_in: str,
         site_x_in: int,
         site_y_in: int,
         api_subsite_in: Dict) -> Dict:
     logger.info("_post_subsite_in_db")
     db_subsite_data = _convert_api_to_db_subsite(
+        app_config_in,
         parent_id_in,
-        sample_in,
+        sample_id_in,
         measurement_id_in,
-        product_in,
+        product_id_in,
         site_x_in,
         site_y_in,
         api_subsite_in)

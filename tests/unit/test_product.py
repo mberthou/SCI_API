@@ -4,12 +4,13 @@ from src.app.app import _get_table
 from decimal import Decimal
 from src.app.helpers.generic_sample import post_generic_sample_data
 import os
+from src.app.app_config import AppConfig
 
 subsite_separate_storage = False
 os.chdir(os.path.dirname(__file__))
 
 def test_get_products(lambda_environment, mock_dynamodb):
-    app_config = {"subsite_separate_storage":False}
+    app_config = AppConfig(False, "dict")
     with open("mapping/test_data/test_post_mapping.json") as f:
         db_table = _get_table()
 
